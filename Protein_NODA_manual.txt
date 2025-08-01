@@ -1,0 +1,66 @@
+
+####--------------------------------------------------------------------------####
+##																				##
+##						Calculate significance Cutoff							##
+##																				##
+####--------------------------------------------------------------------------####
+
+
+	For each non reference data set a separate Cutoff is calculated for 1H, 13C, and 15N nuclei. 
+The cutoff calculated based on the method proposed by Schumann et al. J. Bimol NMR 2007 in which the standard deviation (sigma) of the changes; exclude any residues for which the shift change is greater than 3* =sigma (to avoid biasing the distribution by including the small number of residues with very large shift changes); recalculate sigma; and iterate these calculations until no further residues are excluded. However this can sometimes result in exclusion of all values. The majority of outliers are excluded following the first iteration against 3sigma. So only one further iteration against 2sigma is used to further refine the data and determine the corrected standard deviation sigma0. The user than can adjust the cutoff threshold for using the SDM (standard deviation multiplier) specified in the input file (Cutoff = SDM*sigma0)
+
+The value of the Cutoff = SDM*sigma0 for each data type, nuclei, and non reference data set is stored in the final csv file for the data type analyzed.
+
+
+
+F.H. Schumann, H. Riepl, T. Maurer, W. Gronwald, K.-P. Neidig, H.R. Kalbitzer, Combined chemical shift changes and amino acid specific chemical shift mapping of protein-protein interactions, J. Biomol. NMR 39 (2007) 275–289.
+
+####--------------------------------------------------------------------------####
+##																				##
+##								PyMol Scripts									##
+##																				##
+####--------------------------------------------------------------------------####
+
+For each non reference data set generate a PyMol script to color code the CSP/intensity changes
+According to magnitude of change and the significance cutoff.
+The absolute value of the reported value is stored according to the following binds, which are
+generated on the fly using the Cutoff value and maximum change observed for all combinations of
+data set and data types
+		color0 if Cutoff < val < 2*Cutoff
+		color1 if 2*Cutoff < val < 3*Cutoff
+		color2 if 3*Cutoff < val < 4*Cutoff
+		color3 if 4*Cutoff < val < 5*Cutoff
+		color4 if 5*Cutoff < val < 6*Cutoff
+		color5 if 6*Cutoff < val < max
+
+		In the event that 6*Cutoff > max, the CutOff Values is reduced 
+
+Protons are assigned shades of Green.  
+		green0 = [195, 235, 150]
+		green1 = [75,195,130]
+		green2 = [0,135,100]
+		green3 = [0,115,90]
+		green4 = [0,95,80]
+		green5 = [0,75,70]
+
+13C CSP and HC wavg_CSP and intensity chnages are colored in shades of red 
+		red0 = [254,217,118]
+		red1 = [254,178,76]
+		red2 = [253,141,60]
+		red3 = [252,78,42]
+		red4 = [189,0,38]
+		red5 = [150,0,0]
+
+15N CSP and HN wavg_CSP and intensity chnages are colored in shades of blue 
+		blue0 = [151,212,230]
+		blue1 = [81,183,214]
+		blue2 = [65,143,190]
+		blue3 = [50,101,166]
+		blue4 = [33,54,141]
+		blue5 = [20,30,100]
+
+##	The results are saved in a separate txt file for each non reference data set, with a section 	##
+##	for each data type analyzed. After loading the appropriate pdb file user can copy and past the 	##
+##	content to render and image																		##
+####----------------------------------------------------------------------------------------------####
+
