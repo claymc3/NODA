@@ -1,0 +1,111 @@
+#########################################################################################
+#########################################################################################
+#																						#
+#							Input File Rules and Requirements							#
+#																						#
+# All input files for NMR Observable Data Analysis (NODA) have the same basic			#
+# requirements regardless of the analysis to be performed, which are: 					#
+#	1 Peaks are assigned according to IUPAC standards 									#
+#	2 Assignment: single letter code amino acid type and numerical sequence index 		#
+#				A123CB-HB pass 															#
+#				A123Cb-Hb fail 															#
+#				A123aCB-HB fail 														#
+# 	3 You are running the program in the directory you wish the results to be stored in #
+#	  but that input data is probably located in a different location 					#
+# 																						#
+# Regardless of if you are using Sparky list files or NMRpipe .tab files make sure 		#
+# all files are saved in a common directory, and practice good housekeeping meaning		#
+# 			!!!!!!DO NOT LEAVE BAD/UNWANTED FILES IN THIS DIRECTORY!!!!!!				#
+# If it is not a good copy or has mistakes it is not a treasure delete it or move it    #
+# another location if your hording instincts are too strong.							#
+# 																						#
+# Data sets are analyzed relative to a common reference condition which					#
+# MUST BE THE FIRST ENTRY, unless using the CSP Multi option. So if you are doing		#
+# a titration, list your 0 point first then the subsequent data sets in order of		#
+# increasing ligand concentration.														#
+#																						#
+# Analysis CSP 																			#
+# OutDir  name of directory to place results in (no spaces please) 						#
+# OutName  name for summary output files (no spaces please) 							#
+# Sequence Sequence file fasta or three letter code accepted							#
+# Start_Index for sequence file															#
+# Residues  region of sequence which you want to view 674-1025							#
+# Data_Types CS LW Intensity Volumes													#
+# SDM  standard deviation multiplier 2 recommended										#
+# Show_Labels y or n to show residue label over bars									#
+# Intensity_Norm A411-N I210-CD1														#
+# Common_Scale y or n to use the same scale for all plots of the same type or allow		#
+#                     or use different scales in individual plots						#
+#                     all stacked plots will use a common scale							#
+# PDB pdb_id or path to a pdb file you would like to use when maping results on 		#
+# 		structure, chimera an pymol can fetch publisehd pdbs 							#
+# input_path path to where sparky list files are stored 								#
+#																						#
+# + indicates start of sparky data sets													#
+# Each data set has 4 values when using a single reference and 5 when using multiple 	#
+# reference data sets. Reference data set(s) are never plotted							#
+#																						#
+# 		column_name, legend entry, spark list(s), color (, ref)							#
+#																						#
+#		column_name : column name used in pandas data frame, output csv files and name 	#
+#					  of individual plots so no spaces or special characters please 	#
+#																						#
+# 		legend entry: information that will be displaces in plot legend 				#
+#																						#
+#		Sparky List(s): can be name of single sparky list or shared portion of multiple #
+#						lists using the *												#
+#						ILVMAT-Hsp90b_Ndom_5x_Tau-207-255_Me_25C.list					#
+#						ILVMAT-Hsp90b_Ndom_5x_Tau-207-255_N_25C.list					#
+#																						#
+#						ILVMAT-Hsp90b_Ndom_5x_Tau-207-255_*.list	calls both list		#
+#																						#
+#		color: RGB color code [r,g,b] or color name. 									#
+#				RGB code recomended over color name to insure correc color				#
+#																						#
+#				Some Color recommendations												#
+# 				red  [195,46,58]														#
+# 				orange  [237,125,49]													#
+# 				gold  [254,179,50]														#
+# 				teal   [39,131,124]														#
+# 				light blue  [0,174,239]													#
+# 				dark blue  [41,77,153]													#
+# 				purple  [141,76,125]													#
+# 				green  [176,185,31]														#
+#																						#
+#		ref : If you need to use multiple refernec states, add the column name 			#
+#			 of the data set representing the refernec sate you wish to use for all 	#
+#			 entries including the reference data set. 									#
+#																						#
+#		NOTE any data set that serves as a referece state is not ploted or reported		#
+#			 in csv files 																#
+# 																						#
+# 																						#
+#########################################################################################
+#########################################################################################
++
+Analysis  CSP
+OutDir  FGFR3_10C_Comparison_test
+OutName  FGFR3_10C
+Sequence  FGFR3.fasta
+Start_Index 1
+Residues  459-755
+Data_Types CS Intensity
+SDM 4
+Show_Labels y
+Intensity_Norm I492-CD1
+Common_Scale n
+input_path Sparky_List/
+PDB 4k33
++ 
+FGFR3-KD_10C, FGFR3 KD 459-755 10C, FGFR3_KD_ILVMATs_10C_700B.list, [0,0,0]
+FGFR3-391-755_10C, FGFR3 391-755 vs FGFR3 KD 10C, FGFR3_391_755_IVLMAT_Chmqc_10C.list , [64,224,208]
+FGFR3-397-755_10C, FGFR3 397-755 vs FGFR3 KD 10C, FGFR3_397-755_IVLMAT_10C_Chmqc.list , [199,21,133]
+FGFR3-397-755_K650E_10C, FGFR3 397-755 K650E vs FGFR3 KD 10C, FGFR3_397-755_K650E_10C.list, [128,0,128]
+FGFR3-397-755_R669E_10C, FGFR3 397-755 R669E vs FGFR3 KD 10C, FGFR3_397-755_R669E_10C_Chmqc_1.1GHz.list, [34,139,34]
+FGFR3-397-806_10C, FGFR3 397-806 vs FGFR3 KD 10C, FGFR3_397_806_IVLMAT_Chmqc_10C.list, [100,139,237]
+FGFR3-459-806_10C, FGFR3 459-806 vs FGFR3 KD 10C, FGFR3_459-806_IVLMAT_sfHMQC_10C.list, [255,165,0]
+FGFR3-455-768_AS_10C, FGFR3 455-768 C482A C582S vs FGFR3 KD 10C, 110321_ILVMAT-FGFR3_455-768_C482A_C582S_10C_chmqc_850.list, [146,198,63]
+
+
+
+
