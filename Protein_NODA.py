@@ -54,7 +54,7 @@ if "run" in sys.argv[1].lower():
 		#cvs_path = os.path.join(outpath, 'CSV_files/')
 		if not os.path.exists(outpath):
 			os.makedirs(outpath)
-		CSP.Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labels,Intensity_Norm,Common_Scale,input_path,PDB, MasterList, outpath)
+		CSP.Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labels,Intensity_Norm,Common_Scale,input_path,PDB, MasterList, outpath,CS_min_max,Intensity_min_max)
 	if Analysis == 'Intensity':
 		outpath = os.path.join(CurDir, OutDir + '/')
 		#cvs_path = os.path.join(outpath, 'CSV_files/')
