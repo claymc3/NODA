@@ -718,8 +718,8 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
                 norm = (abs(df2.loc[row,DataSet])-vmin)/(vmax-vmin)
                 if abs(df.loc[row,DataSet]) >= vmin:
                   if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
-                    cmx_script.write("## {:} {:4.3f}\n".format(row,df2.loc[row,DataSet]))
-                    cmx_script.write("color #{:}:{:} rgb({:3.0f},{:3.0f},{:3.0f}) target a\n".format(mn,df2.loc[row,'resid'][1:],255*cmap(norm)[0],255*cmap(norm)[1],255*cmap(norm)[2]))
+                    # cmx_script.write("## {:} {:4.3f}\n".format(row,df2.loc[row,DataSet]))
+                    cmx_script.write("color #{:}:{:} rgb({:3.0f},{:3.0f},{:3.0f}) target a; ## {:} {:4.3f}\n".format(mn,df2.loc[row,'resid'][1:],255*cmap(norm)[0],255*cmap(norm)[1],255*cmap(norm)[2],row,df2.loc[row,DataSet]))
                     showlist = showlist + df2.loc[row,'resid'][1:] + ','
                   else:
                     cmx_script.write("## {:} {:4.3f}\n".format(row,df2.loc[row,DataSet]))
@@ -729,15 +729,14 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
               for res in missingdat:
                 cmx_missing_outline = cmx_missing_outline + '{:},'.format(res)
                 if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
-                  showlist = showlist + df2.loc[row,'resid'][1:] + ','
-              cmx_missing_outline = cmx_missing_outline[:-1] + ' color purple\n'
+                  showlist = showlist + res + ','
+              if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
+                cmx_missing_outline = cmx_missing_outline[:-1] + ' color purple target a\n'
+              else:
+                cmx_missing_outline = cmx_missing_outline[:-1] + ' color purple\n'
               cmx_script.write(cmx_missing_outline)
-              # if atom in ['CMe','HMe']:
-              #     cmx_script.write('size stickRadius 0.27\nsize atomRadius 2.7\nsize :*@CA,CB,O*,N,C atomRadius 0.7\nsize :ala@CB atomRadius 2.7\nsize :met@CG,SD atomRadius 0.7\nsize :leu,ile@CG* atomRadius 0.7\nsize :phe,try@CD*,CG*,CZ* atomRadius 0.7\n')
-              #     cmx_script.write(cmxlable[:-1].replace('label','show') + ' target a\n')
-              # if atom in ['CDAro','HDAro', 'CEAro', 'HEAro']:
-              #     cmx_script.write('size stickRadius 0.27\nsize atomRadius 2.7\nsize :*@CA,CB,O*,N,C atomRadius 0.7\nsize :ala@CB atomRadius 2.7\nsize :met@CG,SD atomRadius 0.7\nsize :leu,ile@CG* atomRadius 0.7\nsize :phe,try@CD*,CG*,CZ* atomRadius 0.7\n')
-              #     cmx_script.write(cmxlable[:-1].replace('label','show') + ' target a\n')
+            if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
+                cmx_script.write('## Show balls for Methyl/Aromatic Side chains\n#style ball; size stickRadius 0.27; size atomRadius 2.7; size :*@CA,CB,O*,N,C atomRadius 0.7; size :ala@CB atomRadius 2.7; size :met@CG,SD atomRadius 0.7; size :leu,ile@CG* atomRadius 0.7; size :phe,try@CD*,CG*,CZ* atomRadius 0.7\n')
             cmx_script.write(cmxlable[:-1] + ' text "{0.label_one_letter_code}{0.number}"\n')
             cmx_script.write(showlist[:-1]+'\n')
             cmx_script.write('hide H\nlighting gentle\n')
