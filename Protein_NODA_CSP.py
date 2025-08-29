@@ -197,6 +197,9 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
       print("Reading in {:}".format(file.split('/')[-1]))
       in_df = pd.read_csv(file,sep=r'\s+',names=open(file).readline().rstrip().replace('Data Height', "Intensity").replace('Volume', "Volume  fit").replace('(hz)', "").split(),skiprows=[0,1],engine='python')
       for i, row in in_df.iterrows():
+        if '?N-' in row['Assignment']:
+          tasign = row['Assignment'].split('-')[-1]
+          row['Assignment'] = tasign[:-1] + 'N-H'
         if '?' not in row['Assignment']:
           if re.findall('[A-Z]([0-9]*)[A-Z]', row['Assignment']):
             if not re.findall('[a-z]', row['Assignment']):
