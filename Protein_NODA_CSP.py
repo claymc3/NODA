@@ -669,7 +669,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
         'CLW':"2dlab text 'LW \u2215 LW\u2080' size 24 xpos 0.80 ypos 0.067\n",
         'NLW':"2dlab text 'LW \u2215 LW\u2080' size 24 xpos 0.80 ypos 0.067\n",
         'HLW':"2dlab text 'LW \u2215 LW\u2080' size 24 xpos 0.80 ypos 0.067\n"}
-  cmap = matplotlib.colors.LinearSegmentedColormap.from_list("custom",['#FED976','#FD8C3C','#FF3700','#800026'])
+  cmap = matplotlib.colors.LinearSegmentedColormap.from_list("custom",['#FFF1A9','#FED976','#FD8C3C','#FF3700','#800026'])
   # cmap = mpl.colormaps['YlOrRd']
   pdbname = PDB.split('/')[-1].split('.')[0]
   print('Generating ChimeraX Scripts')
@@ -701,7 +701,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
             used = []
             cmx_script = open("{:}Chimera_Scripts/{:}_{:}_{:}.cxc".format(outpath,DataSet,atom,dtype),'w')
             cmx_script.write("#########################################################\n## {:}_{:} Color Coding\n## Range{:} - {:}\n#########################################################\n".format(dtype, atom, vmin, vmax))
-            cmx_script.write("key rgb({:3.0f},{:3.0f},{:3.0f}):0.0 rgb({:3.0f},{:3.0f},{:3.0f}):1.0 rgb({:3.0f},{:3.0f},{:3.0f}):2.0  rgb({:3.0f},{:3.0f},{:3.0f}):3.0  rgb({:3.0f},{:3.0f},{:3.0f}):4.0 fontsize 1 colorTreatment distinct numericLabelSpacing equal size 0.20000,0.03000 pos 0.75,0.03\nkey colorTreatment blended\n".format(255*cmap(0.0)[0],255*cmap(0.0)[1],255*cmap(0.0)[2],255*cmap(0.25)[0],255*cmap(0.25)[1],255*cmap(0.25)[2],255*cmap(0.5)[0],255*cmap(0.5)[1],255*cmap(0.5)[2],255*cmap(0.75)[0],255*cmap(0.75)[1],255*cmap(0.75)[2],255*cmap(1.0)[0],255*cmap(1.0)[1],255*cmap(1.0)[2]))
+            cmx_script.write("key rgb({:3.0f},{:3.0f},{:3.0f}):0.0 rgb({:3.0f},{:3.0f},{:3.0f}):1.0  rgb({:3.0f},{:3.0f},{:3.0f}):2.0 rgb({:3.0f},{:3.0f},{:3.0f}):3.0  rgb({:3.0f},{:3.0f},{:3.0f}):4.0  rgb({:3.0f},{:3.0f},{:3.0f}):5.0 fontsize 1 colorTreatment distinct numericLabelSpacing equal size 0.20000,0.03000 pos 0.75,0.03\nkey colorTreatment blended\n".format(255*cmap(0.0)[0],255*cmap(0.0)[1],255*cmap(0.0)[2],255*cmap(0.2)[0],255*cmap(0.2)[1],255*cmap(0.2)[2],255*cmap(0.4)[0],255*cmap(0.4)[1],255*cmap(0.4)[2],255*cmap(0.6)[0],255*cmap(0.6)[1],255*cmap(0.6)[2],255*cmap(0.8)[0],255*cmap(0.8)[1],255*cmap(0.8)[2],255*cmap(1.0)[0],255*cmap(1.0)[1],255*cmap(1.0)[2]))
             cmx_script.write(Key_text[atom[0]+dtype])
             cmx_script.write("2dlab text '{:3.2f}' size 20 xpos 0.75 ypos 0.01\n2dlab text '\u2265{:3.2f}' size 20 xpos 0.925 ypos 0.01\n".format(vmin,vmax))
             cmx_script.write('open {:} maxModels 1\nhide #3 target a\n'.format(PDB))
@@ -722,8 +722,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
                     cmx_script.write("color #{:}:{:} rgb({:3.0f},{:3.0f},{:3.0f}) target a; ## {:} {:4.3f}\n".format(mn,df2.loc[row,'resid'][1:],255*cmap(norm)[0],255*cmap(norm)[1],255*cmap(norm)[2],row,df2.loc[row,DataSet]))
                     showlist = showlist + df2.loc[row,'resid'][1:] + ','
                   else:
-                    cmx_script.write("## {:} {:4.3f}\n".format(row,df2.loc[row,DataSet]))
-                    cmx_script.write("color #{:}:{:} rgb({:3.0f},{:3.0f},{:3.0f}) target c\n ".format(mn,df2.loc[row,'resid'][1:],255*cmap(norm)[0],255*cmap(norm)[1],255*cmap(norm)[2]))
+                    cmx_script.write("color #{:}:{:} rgb({:3.0f},{:3.0f},{:3.0f}) target c; ## {:} {:4.3f}\n".format(mn,df2.loc[row,'resid'][1:],255*cmap(norm)[0],255*cmap(norm)[1],255*cmap(norm)[2],row,df2.loc[row,DataSet]))
             if len(missingdat) > 0:
               cmx_missing_outline = 'color #{:}:'.format(mn)
               for res in missingdat:
@@ -738,7 +737,8 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
             if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
                 cmx_script.write('## Show balls for Methyl/Aromatic Side chains\n#style ball; size stickRadius 0.27; size atomRadius 2.7; size :*@CA,CB,O*,N,C atomRadius 0.7; size :ala@CB atomRadius 2.7; size :met@CG,SD atomRadius 0.7; size :leu,ile@CG* atomRadius 0.7; size :phe,try@CD*,CG*,CZ* atomRadius 0.7\n')
             cmx_script.write(cmxlable[:-1] + ' text "{0.label_one_letter_code}{0.number}"\n')
-            cmx_script.write(showlist[:-1]+'\n')
+            if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
+              cmx_script.write(showlist[:-1]+'\n')
             cmx_script.write('hide H\nlighting gentle\n')
             cmx_script.write('#save {:}_{:}_{:}.tiff format tiff transparentBackground true\n'.format(DataSet,dtype, atom))
             cmx_script.write('\n\n')
