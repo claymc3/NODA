@@ -167,7 +167,6 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
   for DataSet in DataSetList:
     if DataSet not in Refs:
       Plot_DataSetList.append(DataSet)
-## Make a list all possible combinations of resID and atoms to serve as index in DataFrame 
 
 ####----------------------------------------------------------------------------------------------####
 ##                                                                                                  ##
@@ -185,6 +184,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
   for dtype in Data_Types:
     dataframs['DF_' + dtype] = pd.DataFrame()
     dataframs['DF_' + dtype + '_plot'] = pd.DataFrame()
+    dataframs['DF_' + dtype + '_ref'] = pd.DataFrame()
   ## Pars the input sparky list and sort data into approreate DataFrame 
   for DataSet in MasterList:
     InputFiles = glob.glob(os.path.join(input_path + DataSet[2].strip()))
@@ -285,6 +285,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
     dataframs['DF_CS_wavg'] = DF_CS_wavg
     DF_CS_wavg_plot = pd.DataFrame(columns=['atom_sort'])
     dataframs['DF_CS_wavg_plot'] = DF_CS_wavg_plot
+    dataframs['DF_CS_wavg_ref'] = pd.DataFrame()
     Data_Types.insert(Data_Types.index('CS') +1, 'CS_wavg')
     print('Finished CS_wavg Analysis')
 ####----------------------------------------------------------------------------------------------####
@@ -410,10 +411,12 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
 ##                                                                                                  ##
 ####----------------------------------------------------------------------------------------------####
 
+
   for dtype in Data_Types:
     # print(dtype)
     df = dataframs['DF_' + dtype]
     df_plot = dataframs['DF_' +dtype + '_plot']
+    df_ref = dataframs['DF_' +dtype + '_ref']
     for atom in df['atom_sort'].unique().tolist():
       df_atoms = df[df['atom_sort']== atom ].sort_values(by=['resi']).index.tolist()
       df_atoms.append(df_atoms[-1])
@@ -427,6 +430,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
               df_plot.loc[df.loc[df_atoms[i],'resid']+'_'+atom, 'nuc'] = df.loc[df_atoms[i],'nuc']
               df_plot.loc[df.loc[df_atoms[i],'resid']+'_'+atom, 'atom_sort'] = atom
               df_plot.loc[df.loc[df_atoms[i],'resid']+'_'+atom, DataSet] = df.loc[df_atoms[i],DataSet]
+              df_ref.loc[df.loc[df_atoms[i],'resid']+'_'+atom, DataSet] = df.loc[df_atoms[i],References[DataSet]]
               used.append(df_atoms[i])
             elif df.loc[df_atoms[i],'resid'] == df.loc[df_atoms[i+1],'resid']:
               values = [abs(df.loc[df_atoms[i],DataSet]),abs(df.loc[df_atoms[i+1],DataSet])]
@@ -436,8 +440,10 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
               df_plot.loc[df.loc[df_atoms[idx],'resid']+'_'+atom, 'nuc'] = df.loc[df_atoms[idx],'nuc']
               df_plot.loc[df.loc[df_atoms[idx],'resid']+'_'+atom, 'atom_sort'] = atom
               df_plot.loc[df.loc[df_atoms[idx],'resid']+'_'+atom, DataSet] = df.loc[df_atoms[idx],DataSet]
+              df_ref.loc[df.loc[df_atoms[i],'resid']+'_'+atom, DataSet] = df.loc[df_atoms[idx],References[DataSet]]
               used.extend((df_atoms[i],df_atoms[i+1]))
     df_plot.to_csv(outpath + 'CSV_Files/' +  OutName + '_' + dtype + '_plot.csv')
+
 ####----------------------------------------------------------------------------------------------####
 ##                                                                                                  ##
 ##      Generating dictionaries to control axis limits and titles in scatter and bar plots          ##
@@ -672,7 +678,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
         'CLW':"2dlab text 'LW \u2215 LW\u2080' size 24 xpos 0.80 ypos 0.067\n",
         'NLW':"2dlab text 'LW \u2215 LW\u2080' size 24 xpos 0.80 ypos 0.067\n",
         'HLW':"2dlab text 'LW \u2215 LW\u2080' size 24 xpos 0.80 ypos 0.067\n"}
-  cmap = matplotlib.colors.LinearSegmentedColormap.from_list("custom",['#FFF1A9','#FED976','#FD8C3C','#FF3700','#800026'])
+  cmap = matplotlib.colors.LinearSegmentedColormap.from_list("custom",['#e6e7e8','#FFF1A9','#FED976','#FD8C3C','#FF3700','#E2191C','#800026'])
   # cmap = mpl.colormaps['YlOrRd']
   pdbname = PDB.split('/')[-1].split('.')[0]
   print('Generating ChimeraX Scripts')
@@ -685,6 +691,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
         vmin = CXC_limits[dtype+'_min']
         vmax = CXC_limits[dtype+'_max']
         df = dataframs['DF_' + dtype + '_plot']
+        df_ref = dataframs['DF_' + dtype + '_ref']
         Cutoff_dict = MasterDict['Cutoff_' + dtype + '_dict']
         AtomsList=df['atom_sort'].unique().tolist()
         for atom in AtomsList:
@@ -710,8 +717,9 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
             cmx_script.write('open {:} maxModels 1\nhide #3 target a\n'.format(PDB))
             cmx_script.write('rename #3 {:}_{:}_{:}\ncolor #{:} gray(150)\n'.format(DataSet,dtype,atom,mn))
             cmx_script.write("show nucleic\nhide #{:}: protein|solvent|H target as\nsurface hide\nstyle (protein|nucleic|solvent) & @@draw_mode=0 stick\ncartoon style modeHelix tube sides 20\ngraphics silhouettes tru\ncartoon style radius 1.5\nset bgColor white\n".format(mn))
+            ### Check to see if there is an entry for each atom, if there is not an entry in target data set but one in the reference data set add it to the missing list
             for row in df2.index.tolist():
-              if np.isnan(df2.loc[row,DataSet]):
+              if np.isnan(df2.loc[row,DataSet]) and not np.isnan(df_ref.loc[row,DataSet]):
                 missingdat.append(df2.loc[row,'resid'][1:])
                 used.append(row)
             for row in df2.index.tolist():
@@ -721,7 +729,6 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
                 norm = (abs(df2.loc[row,DataSet])-vmin)/(vmax-vmin)
                 if abs(df.loc[row,DataSet]) >= vmin:
                   if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
-                    # cmx_script.write("## {:} {:4.3f}\n".format(row,df2.loc[row,DataSet]))
                     cmx_script.write("color #{:}:{:} rgb({:3.0f},{:3.0f},{:3.0f}) target a; ## {:} {:4.3f}\n".format(mn,df2.loc[row,'resid'][1:],255*cmap(norm)[0],255*cmap(norm)[1],255*cmap(norm)[2],row,df2.loc[row,DataSet]))
                     showlist = showlist + df2.loc[row,'resid'][1:] + ','
                   else:
@@ -735,7 +742,7 @@ def Plot_CSP_data(OutName,Sequence,Start_Index,Residues,Data_Types,SDM,Show_Labe
               if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
                 cmx_missing_outline = cmx_missing_outline[:-1] + ' color purple target a\n'
               else:
-                cmx_missing_outline = cmx_missing_outline[:-1] + ' color purple\n'
+                cmx_missing_outline = cmx_missing_outline[:-1] + ' color purple target c\n'
               cmx_script.write(cmx_missing_outline)
             if atom in ['CMe','HMe','CDAro','HDAro', 'CEAro', 'HEAro']:
                 cmx_script.write('## Show balls for Methyl/Aromatic Side chains\n#style ball; size stickRadius 0.27; size atomRadius 2.7; size :*@CA,CB,O*,N,C atomRadius 0.7; size :ala@CB atomRadius 2.7; size :met@CG,SD atomRadius 0.7; size :leu,ile@CG* atomRadius 0.7; size :phe,try@CD*,CG*,CZ* atomRadius 0.7\n')
